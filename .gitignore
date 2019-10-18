@@ -1,0 +1,16 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/metaphysics
+metaphysics.so
+metaphysics.dylib
+metaphysics.dll
+libmetaphysics.a
+metaphysics.lib
+metaphysics-test-*
+*.exe
+*.o
+*.obj
+*.lst
+dub.selections.json

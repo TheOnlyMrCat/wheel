@@ -1,0 +1,6 @@
+name "wheel"
+description "A simple SDL-based engine"
+authors "TheOnlyMrCat"
+license "MIT"
+targetType "dynamicLibrary"
+dependency "derelict-sdl2" version="~>2.1.4"
