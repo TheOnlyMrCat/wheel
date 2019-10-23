@@ -1,8 +1,9 @@
 module cat.wheel.events;
 
 import std.string;
-import std.container.array;
+import std.array;
 import core.sync.mutex;
+import core.vararg;
 import derelict.sdl2.sdl;
 
 public import cat.wheel.except;
@@ -51,14 +52,14 @@ class Handler {
 	/**
 	 * Adds a delegate function to be called by this handler when a specific event occurs
 	 */
-	void addDelegate(void delegate() nothrow del, int event) nothrow {
-		tick[event] ~= del;
+	void addDelegate(void delegate(...) del, int event) nothrow {
+		_tick[event] ~= del;
 	}
 
 	/**
 	 * Forces the main loop to stop
 	 */
-	void stop() nothrow {
+	void stop() nothrow @safe {
 		_doContinue = false;
 	}
 
@@ -67,25 +68,27 @@ class Handler {
 	 */
 	void handle() {
 		while (_doContinue) {
-			runDelegates(DefaultEvents.PRE_PUMP);
+			runDelegates(ED_PRE_PUMP);
 
-			_events = _events.init;
-			auto appender = _events.appender();
+			_eventsSDL = _eventsSDL.init;
+			auto appender = appender(_eventsSDL);
 
 			SDL_Event e;
 			while (SDL_PollEvent(&e)) {
 				appender.put(e);
 
-				runDelegates(DefaultEvents.PUMP);
+				runDelegates(ED_PUMP, e);
 			}
 
-			runDelegates(DefaultEvents.POST_PUMP);
+			runDelegates(ED_POST_PUMP);
 
-			immutable(int) currentTime = SDL_GetTicks();
+			const int currentTime = SDL_GetTicks();
 			_deltaTime = _lastTick - currentTime;
 			_lastTick = currentTime;
 
-			runDelegates(DefaultEvents.TICK);
+			runDelegates(ED_PRE_TICK);
+			runDelegates(ED_TICK);
+			runDelegates(ED_POST_TICK);
 		}
 	}
 
@@ -93,15 +96,15 @@ class Handler {
 	 * Dispatches an event to be run by user-defined delegate functions
 	 * event: Event UID
 	 */
-	void callEvent(int event) {
-		runDelegates(event);
+	void callEvent(int event, ...) {
+		runDelegates(event, _argptr);
 	}
 
 	/**
 	 * The amount of time it took between the previous frame and this frame
 	 * This function should only be called on the main thread.
 	 */
-	@property time() {
+	@property time() nothrow pure @safe {
 		return _deltaTime;
 	}
 
@@ -109,32 +112,31 @@ class Handler {
 	 * The SDL events that happened this frame.
 	 * This function should only be called on the main thread.
 	 */
-	@property events() {
+	@property events() nothrow pure @safe {
 		return _eventsSDL;
 	}
-private:
-	void delegate()[][int] _tick;
 
-	void runDelegates(int type) nothrow {
+private:
+	void delegate(...)[][int] _tick;
+
+	void runDelegates(uint type, ...) {
 		foreach (d; _tick[type]) {
-			d();
+			d(_argptr);
 		}
 	}
 
 	shared(bool) _doContinue = true;
-
-	shared(bool) lockEvents;
 	shared(SDL_Event[]) _eventsSDL;
 
-	int[] _events;
 	int _deltaTime;
-
 	int _lastTick;
 }
 
-enum DefaultEvents {
-	PRE_PUMP = 1,
-	PUMP = 2,
-	POST_PUMP = 3,
-	TICK = 4
+enum : uint {
+	ED_TICK = 0b000,
+	ED_PRE_PUMP = 0b001,
+	ED_PUMP = 0b010,
+	ED_POST_PUMP = 0b011,
+	ED_PRE_TICK = 0b100,
+	ED_POST_TICK = 0b101
 }
