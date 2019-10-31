@@ -18,7 +18,7 @@ class InputHandler {
 	/**
 	 * Constructs an input handler from an SDL handler, which it attaches delegates to.
 	 */
-	this(Handler h) {
+	this(Handler h) nothrow @safe {
 		_handler = h;
 
 		_handler.addDelegate((...) => nextFrame(_handler.time), ED_PRE_PUMP);
@@ -37,7 +37,7 @@ private:
 	int[Keysym] _heldKeys;
 	Keysym[] _releasedKeys;
 
-	void store(SDL_Event e) nothrow {
+	void store(SDL_Event e) nothrow pure @safe {
 		if (e.type == SDL_KEYDOWN) {
 			_pressedKeys ~= Keysym(cast(KeyCode) e.key.keysym.sym, cast(KeyMod) e.key.keysym.mod);
 		} else if (e.type == SDL_KEYUP) {
@@ -61,7 +61,7 @@ private:
 		}
 	}
 
-	void nextFrame(int deltaTime) {
+	void nextFrame(int deltaTime) nothrow pure @safe {
 		foreach (key; _pressedKeys) {
 			_heldKeys[key] = 0;
 		}
@@ -91,13 +91,21 @@ unittest {
 			0        //Unused
 		)
 	);
-
 	h.store(e);
-	assert(h._pressedKeys.canFind(Keysym(KeyCode.N5, KeyMod.NONE)));
+
+	auto pressed = Keysym(KeyCode.N5, KeyMod.NONE);
+	assert(h._pressedKeys.canFind(pressed));
 
 	e.key = SDL_KeyboardEvent(SDL_KEYUP, 0, 0, SDL_PRESSED, 0, 0, 0, SDL_Keysym(0, SDLK_RETURN, KMOD_LCTRL, 0));
 	h.store(e);
-	assert(h._releasedKeys.canFind(Keysym(KeyCode.RETURN, KeyMod.LCTRL)));
+
+	auto released = Keysym(KeyCode.RETURN, KeyMod.LCTRL);
+	assert(h._releasedKeys.canFind(released));
+
+	h.nextFrame(50);
+	assert(h._heldKeys.byKey.canFind(pressed));
+	assert(h._heldKeys[pressed] == 50);
+	assert(!h._releasedKeys.canFind(released));
 }
 
 /**

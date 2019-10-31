@@ -17,7 +17,11 @@ class SDLException : Exception {
  * Checks the return value of an SDL function to be null, and if it is, throws an exception
  * Returns the object
  */
-T SDL(T)(T obj) {
-	if (obj is null) throw new SDLException(cast(string) SDL_GetError().fromStringz());
+package T SDL(T)(T obj) {
+	if (obj is null) throw new SDLException(cast(string) SDL_GetError().fromStringz);
 	return obj;
+}
+
+package void check(int rt) {
+	if (rt != 0) throw new SDLException(cast(string) SDL_GetError().fromStringz);
 }

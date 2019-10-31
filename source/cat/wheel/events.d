@@ -52,14 +52,14 @@ class Handler {
 	/**
 	 * Adds a delegate function to be called by this handler when a specific event occurs
 	 */
-	void addDelegate(void delegate(...) del, int event) nothrow {
+	void addDelegate(void delegate(...) del, int event) nothrow @safe {
 		_tick[event] ~= del;
 	}
 
 	/**
 	 * Forces the main loop to stop
 	 */
-	void stop() nothrow @safe {
+	void stop() nothrow pure @safe {
 		_doContinue = false;
 	}
 
@@ -104,7 +104,7 @@ class Handler {
 	 * The amount of time it took between the previous frame and this frame
 	 * This function should only be called on the main thread.
 	 */
-	@property time() nothrow pure @safe {
+	@property time() nothrow @safe {
 		return _deltaTime;
 	}
 
@@ -112,7 +112,7 @@ class Handler {
 	 * The SDL events that happened this frame.
 	 * This function should only be called on the main thread.
 	 */
-	@property events() nothrow pure @safe {
+	@property events() nothrow @safe {
 		return _eventsSDL;
 	}
 
