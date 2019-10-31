@@ -65,7 +65,7 @@ private:
 		}
 	}
 
-	void nextFrame(int deltaTime) nothrow pure @safe {
+	void nextFrame(int deltaTime) nothrow {
 		foreach (key; _pressedKeys) {
 			_heldKeys[key] = 0;
 		}
