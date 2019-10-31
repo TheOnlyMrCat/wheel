@@ -18,6 +18,16 @@ struct Rect {
      */
     SDL_Rect sdl;
 
+    /**
+     * Constructs the Rect from four integers
+     */
+    this(int x, int y, int w, int h) {
+        sdl.x = x;
+        sdl.y = y;
+        sdl.w = w;
+        sdl.h = h;
+    }
+
     alias sdl this;
 }
 
@@ -37,10 +47,12 @@ struct Color {
     /// The transparency of the color, dependent on the blend mode used
     ubyte a;
 }
+
 /**
  * A 2-dimensional vector
  */
 struct Vector2 {
+    ///
     int x, y;
 }
 
@@ -48,5 +60,6 @@ struct Vector2 {
  * A 3-dimensional vector
  */
 struct Vector3 {
+    ///
     int x, y, z;
 }

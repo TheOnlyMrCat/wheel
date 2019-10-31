@@ -156,6 +156,36 @@ public:
 		SDL_RenderDrawLines(_renderer, sdl.ptr, sdl.length.to!int).check;
 	}
 
+	void drawRect(Rect rect) {
+		const(SDL_Rect) c = rect.sdl;
+		SDL_RenderDrawRect(_renderer, &c).check;
+	}
+
+	void drawRects(Rect[] rects) {
+		SDL_Rect[] sdl;
+		for (int i = 0; i < rects.length; i++) {
+			sdl[i] = rects[i].sdl;
+		}
+
+		const(SDL_Rect)[] sdlc = sdl;
+		SDL_RenderDrawRects(_renderer, sdlc.ptr, sdl.length.to!int).check;
+	}
+
+	void fillRect(Rect rect) {
+		const(SDL_Rect) c = rect.sdl;
+		SDL_RenderFillRect(_renderer, &c).check;
+	}
+
+	void fillRects(Rect[] rects) {
+		SDL_Rect[] sdl;
+		for (int i = 0; i < rects.length; i++) {
+			sdl[i] = rects[i].sdl;
+		}
+
+		const(SDL_Rect)[] sdlc = sdl;
+		SDL_RenderFillRects(_renderer, sdlc.ptr, sdl.length.to!int).check;
+	}
+
 	void render() {
 		SDL_RenderPresent(_renderer);
 	}
