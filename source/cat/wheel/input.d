@@ -2,7 +2,7 @@ module cat.wheel.input;
 
 import std.algorithm.searching;
 import core.vararg;
-import derelict.sdl2.sdl;
+import bindbc.sdl;
 
 import cat.wheel.events;
 import cat.wheel.keysym;
@@ -39,9 +39,9 @@ private:
 
 	void store(SDL_Event e) nothrow pure @safe {
 		if (e.type == SDL_KEYDOWN) {
-			_pressedKeys ~= Keysym(cast(KeyCode) e.key.keysym.sym, cast(KeyMod) e.key.keysym.mod);
+			_pressedKeys ~= Keysym(e.key.keysym.sym, cast(SDL_Keymod) e.key.keysym.mod);
 		} else if (e.type == SDL_KEYUP) {
-			auto keysym = Keysym(cast(KeyCode) e.key.keysym.sym, cast(KeyMod) e.key.keysym.mod);
+			auto keysym = Keysym(e.key.keysym.sym, cast(SDL_Keymod) e.key.keysym.mod);
 			_heldKeys.remove(keysym);
 			_releasedKeys ~= keysym;
 		}
@@ -85,7 +85,7 @@ unittest {
 		SDL_PRESSED, //Pressed/released
 		0, 0, 0,     //Repeat (first 0) and padding (unused)
 		SDL_Keysym(
-			0,       //Scancode not checked
+			SDL_SCANCODE_UNKNOWN, //Scancode not checked
 			SDLK_5,  //Virtual key
 			0,       //Modifiers
 			0        //Unused
@@ -93,13 +93,13 @@ unittest {
 	);
 	h.store(e);
 
-	auto pressed = Keysym(KeyCode.N5, KeyMod.NONE);
+	auto pressed = Keysym(SDLK_5, KMOD_NONE);
 	assert(h._pressedKeys.canFind(pressed));
 
-	e.key = SDL_KeyboardEvent(SDL_KEYUP, 0, 0, SDL_PRESSED, 0, 0, 0, SDL_Keysym(0, SDLK_RETURN, KMOD_LCTRL, 0));
+	e.key = SDL_KeyboardEvent(SDL_KEYUP, 0, 0, SDL_PRESSED, 0, 0, 0, SDL_Keysym(SDL_SCANCODE_UNKNOWN, SDLK_RETURN, KMOD_LCTRL, 0));
 	h.store(e);
 
-	auto released = Keysym(KeyCode.RETURN, KeyMod.LCTRL);
+	auto released = Keysym(SDLK_RETURN, KMOD_LCTRL);
 	assert(h._releasedKeys.canFind(released));
 
 	h.nextFrame(50);

@@ -2,7 +2,7 @@ module cat.wheel.graphics;
 
 import std.conv : to;
 import std.string;
-import derelict.sdl2.sdl;
+import bindbc.sdl;
 
 import cat.wheel.except;
 import cat.wheel.structs;
@@ -23,7 +23,14 @@ public:
 	 *   h = The initial height of the window
 	 *   flags = A number of window flags to initialise the window with
 	 */
-	this(string title = "", int x = SDL_WINDOWPOS_UNDEFINED, int y = SDL_WINDOWPOS_UNDEFINED, int w = 0, int h = 0, uint flags = 0) {
+	this(
+		string title = "",
+		int x = SDL_WINDOWPOS_UNDEFINED,
+		int y = SDL_WINDOWPOS_UNDEFINED,
+		int w = 0,
+		int h = 0,
+		SDL_WindowFlags flags = cast(SDL_WindowFlags) 0)
+	{
 		_window = SDL(SDL_CreateWindow(title.toStringz(), x, y, w, h, flags));
 	}
 
@@ -122,7 +129,7 @@ public:
 	 *   flags = The flags to look for when initialising a renderer
 	 *   index = The index of the renderer to initialise, leave blank (-1) for the first matching the specified flags
 	 */
-	this(Window w, uint flags = 0, int index = -1) {
+	this(Window w, SDL_RendererFlags flags = cast(SDL_RendererFlags) 0, int index = -1) {
 		_renderer = SDL_CreateRenderer(w._window, index, flags);
 	}
 

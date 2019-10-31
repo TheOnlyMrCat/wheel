@@ -2,7 +2,7 @@ module cat.wheel.except;
 
 import std.string;
 import std.exception;
-import derelict.sdl2.sdl;
+import bindbc.sdl;
 
 /**
  * Indicates that an error has occurred in an SDL function

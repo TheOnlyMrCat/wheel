@@ -4,20 +4,16 @@ import std.string;
 import std.array;
 import core.sync.mutex;
 import core.vararg;
-import derelict.sdl2.sdl;
+import bindbc.sdl;
 
-public import cat.wheel.except;
+import cat.wheel.except;
 
 /**
  * Initialize the SDL library. Call this once, and before anything else.
  * systems: The subsystems to initialize
  */
 void initSDL(uint systems) {
-	DerelictSDL2.load();
-
-	if (SDL_Init(systems) != 0) {
-		throw new SDLException(cast(string) SDL_GetError().fromStringz());
-	}
+	SDL_Init(systems).check;
 }
 
 /**
@@ -25,9 +21,7 @@ void initSDL(uint systems) {
  * systems: The subsystems to initialize
  */
 void initSystem(uint systems) {
-	if (SDL_InitSubSystem(systems) != 0) {
-		throw new SDLException(cast(string) SDL_GetError().fromStringz());
-	}
+	SDL_InitSubSystem(systems).check;
 }
 
 /**

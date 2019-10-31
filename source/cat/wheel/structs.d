@@ -1,6 +1,6 @@
 module cat.wheel.structs;
 
-import derelict.sdl2.sdl;
+import bindbc.sdl;
 
 /**
  * A rectangle.
