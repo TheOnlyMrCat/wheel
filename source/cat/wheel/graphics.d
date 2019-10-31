@@ -156,6 +156,14 @@ public:
 		SDL_RenderDrawLines(_renderer, sdl.ptr, sdl.length.to!int).check;
 	}
 
+	void render() {
+		SDL_RenderPresent(_renderer);
+	}
+
+	void clear() {
+		SDL_RenderClear(_renderer).check;
+	}
+
 	///
 	@property clipRect() nothrow {
 		return _clipRect;
