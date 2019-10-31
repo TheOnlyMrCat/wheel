@@ -3,7 +3,6 @@ module cat.wheel.events;
 import std.string;
 import std.array;
 import core.sync.mutex;
-import core.vararg;
 import bindbc.sdl;
 
 import cat.wheel.except;
@@ -46,8 +45,8 @@ class Handler {
 	/**
 	 * Adds a delegate function to be called by this handler when a specific event occurs
 	 */
-	void addDelegate(void delegate(...) del, int event) nothrow @safe {
-		_tick[event] ~= del;
+	void addDelegate(void delegate(void*) del, int event) nothrow @safe {
+		_delegates[event] ~= del;
 	}
 
 	/**
@@ -71,7 +70,7 @@ class Handler {
 			while (SDL_PollEvent(&e)) {
 				appender.put(e);
 
-				runDelegates(ED_PUMP, e);
+				runDelegates(ED_PUMP, &e);
 			}
 
 			runDelegates(ED_POST_PUMP);
@@ -90,8 +89,8 @@ class Handler {
 	 * Dispatches an event to be run by user-defined delegate functions
 	 * event: Event UID
 	 */
-	void callEvent(int event, ...) {
-		runDelegates(event, _argptr);
+	void callEvent(uint event, void* arg = cast(void*) 0) {
+		runDelegates(event, arg);
 	}
 
 	/**
@@ -111,11 +110,11 @@ class Handler {
 	}
 
 private:
-	void delegate(...)[][int] _tick;
+	void delegate(void*)[][int] _delegates;
 
-	void runDelegates(uint type, ...) {
-		foreach (d; _tick[type]) {
-			d(_argptr);
+	void runDelegates(uint type, void* arg = cast(void*) 0) {
+		foreach (d; _delegates[type]) {
+			d(arg);
 		}
 	}
 

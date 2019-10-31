@@ -18,16 +18,20 @@ class InputHandler {
 	/**
 	 * Constructs an input handler from an SDL handler, which it attaches delegates to.
 	 */
-	this(Handler h) nothrow @safe {
+	this(Handler h) nothrow {
 		_handler = h;
 
-		_handler.addDelegate((...) => nextFrame(_handler.time), ED_PRE_PUMP);
+		_handler.addDelegate((void* arg) => nextFrame(_handler.time), ED_PRE_PUMP);
 
-		_handler.addDelegate((...) {
-			if (_arguments[0] == typeid(SDL_Event)) store(va_arg!SDL_Event(_argptr));
+		_handler.addDelegate((void* arg) {
+			store(*(cast(SDL_Event*) arg));
 		}, ED_PUMP);
 
-		_handler.addDelegate((...) => pumpEvents(), ED_PRE_TICK);
+		_handler.addDelegate((void* arg) => pumpEvents(), ED_PRE_TICK);
+	}
+
+	int getHeldFor(Keysym key) {
+		return _heldKeys[key];
 	}
 
 private:
@@ -49,15 +53,15 @@ private:
 
 	void pumpEvents() {
 		foreach (key; _pressedKeys) {
-			_handler.callEvent(EI_KEY_PRESSED, key);
+			_handler.callEvent(EI_KEY_PRESSED, &key);
 		}
 
 		foreach (key; _heldKeys.byKey) {
-			_handler.callEvent(EI_KEY_HELD, key, _heldKeys[key]);
+			_handler.callEvent(EI_KEY_HELD, &key);
 		}
 
 		foreach (key; _releasedKeys) {
-			_handler.callEvent(EI_KEY_RELEASED, key);
+			_handler.callEvent(EI_KEY_RELEASED, &key);
 		}
 	}
 
