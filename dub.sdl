@@ -1,6 +1,6 @@
 name "wheel"
 description "A simple SDL-based engine"
 authors "TheOnlyMrCat"
-license "MIT"
+license "BSL-1.0"
 targetType "dynamicLibrary"
 dependency "bindbc-sdl" version="~>0.1.0"
