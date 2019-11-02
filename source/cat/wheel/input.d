@@ -4,8 +4,20 @@ import std.algorithm.searching;
 import core.vararg;
 import bindbc.sdl;
 
-import cat.wheel.events;
+public import cat.wheel.events;
 import cat.wheel.keysym;
+
+/**
+ * Arguments to keyboard events
+ */
+class KeyboardEventArgs : EventArgs {
+	package this(Keysym s) { sym = s; }
+
+	/**
+	 * The key involved in the event
+	 */
+	public Keysym sym;
+}
 
 /**
  * An input handler, which keeps track of what inputs are being held, pressed, released, etc.
@@ -21,13 +33,13 @@ class InputHandler {
 	this(Handler h) nothrow {
 		_handler = h;
 
-		_handler.addDelegate((void* arg) => nextFrame(_handler.time), ED_PRE_PUMP);
+		_handler.addDelegate((EventArgs) => nextFrame(_handler.time), ED_PRE_PUMP);
 
-		_handler.addDelegate((void* arg) {
-			store(*(cast(SDL_Event*) arg));
+		_handler.addDelegate((EventArgs arg) {
+			if (arg.classinfo == typeid(PumpEventArgs)) store(*(cast(SDL_Event*) arg));
 		}, ED_PUMP);
 
-		_handler.addDelegate((void* arg) => pumpEvents(), ED_PRE_TICK);
+		_handler.addDelegate((EventArgs) => pumpEvents(), ED_PRE_TICK);
 	}
 
 	int getHeldFor(Keysym key) {
@@ -53,15 +65,15 @@ private:
 
 	void pumpEvents() {
 		foreach (key; _pressedKeys) {
-			_handler.callEvent(EI_KEY_PRESSED, &key);
+			_handler.callEvent(EI_KEY_PRESSED, new KeyboardEventArgs(key));
 		}
 
 		foreach (key; _heldKeys.byKey) {
-			_handler.callEvent(EI_KEY_HELD, &key);
+			_handler.callEvent(EI_KEY_HELD, new KeyboardEventArgs(key));
 		}
 
 		foreach (key; _releasedKeys) {
-			_handler.callEvent(EI_KEY_RELEASED, &key);
+			_handler.callEvent(EI_KEY_RELEASED, new KeyboardEventArgs(key));
 		}
 	}
 

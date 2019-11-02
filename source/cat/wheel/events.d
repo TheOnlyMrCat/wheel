@@ -39,13 +39,30 @@ void quitSystem(uint systems) {
 }
 
 /**
+ * Arguments to event handler delegates
+ */
+class EventArgs {}
+
+/**
+ * The argument to the default PUMP event
+ */
+class PumpEventArgs : EventArgs {
+	package this(SDL_Event e) { event = e; }
+
+	/**
+	 * The event
+	 */
+	public SDL_Event event;
+}
+
+/**
  * Represents an SDL event handler, which controls the main thread and calls delegate functions specified by the program
  */
 class Handler {
 	/**
 	 * Adds a delegate function to be called by this handler when a specific event occurs
 	 */
-	void addDelegate(void delegate(void*) del, int event) nothrow @safe {
+	void addDelegate(void delegate(EventArgs) del, int event) nothrow @safe {
 		_delegates[event] ~= del;
 	}
 
@@ -70,7 +87,7 @@ class Handler {
 			while (SDL_PollEvent(&e)) {
 				appender.put(e);
 
-				runDelegates(ED_PUMP, &e);
+				runDelegates(ED_PUMP, new PumpEventArgs(e));
 			}
 
 			runDelegates(ED_POST_PUMP);
@@ -89,7 +106,7 @@ class Handler {
 	 * Dispatches an event to be run by user-defined delegate functions
 	 * event: Event UID
 	 */
-	void callEvent(uint event, void* arg = cast(void*) 0) {
+	void callEvent(uint event, EventArgs arg = new EventArgs()) {
 		runDelegates(event, arg);
 	}
 
@@ -110,11 +127,11 @@ class Handler {
 	}
 
 private:
-	void delegate(void*)[][int] _delegates;
+	void delegate(EventArgs)[][int] _delegates;
 
-	void runDelegates(uint type, void* arg = cast(void*) 0) {
+	void runDelegates(uint type, EventArgs args = new EventArgs()) {
 		foreach (d; _delegates[type]) {
-			d(arg);
+			d(args);
 		}
 	}
 
