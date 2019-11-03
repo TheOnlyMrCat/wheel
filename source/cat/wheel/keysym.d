@@ -33,9 +33,6 @@ struct MouseButton {
         ubyte clicks;
     }
 
-    /// Whether the button was pressed or released
-    ubyte state;
-
     /// The position relative to the window
     Vector2 position;
 }

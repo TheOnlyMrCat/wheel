@@ -14,14 +14,43 @@ import cat.wheel.structs;
 class KeyboardEventArgs : EventArgs {
 	package this(Keysym s) { sym = s; }
 
-	/**
-	 * The key involved in the event
-	 */
-	public Keysym sym;
+	/// The key involved in the event
+	public const(Keysym) sym;
+}
+
+/**
+ * Arguments to events involving mouse buttons
+ */
+class MouseButtonEventArgs : EventArgs {
+	package this(MouseButton m) { button = m; }
+
+	/// The mouse button involved in the event
+	public const(MouseButton) button;
+}
+
+/**
+ * The argument to the mouse movement event
+ */
+class MouseMotionEventArgs : EventArgs {
+	package this(MouseMotion m) { motion = m; }
+
+	/// The mouse motion data for the event
+	public const(MouseMotion) motion;
+}
+
+/**
+ * The argument to the mouse wheel event
+ */
+class MouseWheelEventArgs : EventArgs {
+	package this(MouseWheel m) { wheel = m; }
+
+	/// The mouse wheel data for the event
+	public const(MouseWheel) wheel;
 }
 
 /**
  * An input handler, which keeps track of what inputs are being held, pressed, released, etc.
+ * Has to be registered to an event handler
  */
 class InputHandler {
 
@@ -54,7 +83,8 @@ private:
 	int[Keysym] _heldKeys;
 	Keysym[] _releasedKeys;
 
-	MouseButton[] _mouseButtonEvents;
+	MouseButton[] _mouseButtonsPressed;
+	MouseButton[] _mouseButtonsReleased;
 	MouseMotion[] _mouseMotionEvents;
 	MouseWheel[] _mouseWheelEvents;
 
@@ -68,11 +98,17 @@ private:
 			_releasedKeys ~= keysym;
 		}
 		//Mouse
-		else if (e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_MOUSEBUTTONUP) {
+		else if (e.type == SDL_MOUSEBUTTONDOWN) {
 			static if (sdlSupport == SDLSupport.sdl200) {
-				_mouseButtonEvents ~= MouseButton(e.button.which, e.button.button, 0, e.button.state, Vector2(e.button.x, e.button.y));
+				_mouseButtonsPressed ~= MouseButton(e.button.which, e.button.button, 0, Vector2(e.button.x, e.button.y));
 			} else {
-				_mouseButtonEvents ~= MouseButton(e.button.which, e.button.button, e.button.clicks, e.button.state, Vector2(e.button.x, e.button.y));
+				_mouseButtonsPressed ~= MouseButton(e.button.which, e.button.button, e.button.clicks, Vector2(e.button.x, e.button.y));
+			}
+		} else if (e.type == SDL_MOUSEBUTTONUP) {
+			static if (sdlSupport == SDLSupport.sdl200) {
+				_mouseButtonsReleased ~= MouseButton(e.button.which, e.button.button, 0, Vector2(e.button.x, e.button.y));
+			} else {
+				_mouseButtonsReleased ~= MouseButton(e.button.which, e.button.button, e.button.clicks, Vector2(e.button.x, e.button.y));
 			}
 		} else if (e.type == SDL_MOUSEMOTION) {
 			_mouseMotionEvents ~= MouseMotion(e.motion.which, e.motion.state, Vector2(e.motion.x, e.motion.y), Vector2(e.motion.xrel, e.motion.yrel));
@@ -96,6 +132,22 @@ private:
 
 		foreach (key; _releasedKeys) {
 			_handler.callEvent(EI_KEY_RELEASED, new KeyboardEventArgs(key));
+		}
+
+		foreach (button; _mouseButtonsPressed) {
+			_handler.callEvent(EI_MOUSE_PRESSED, new MouseButtonEventArgs(button));
+		}
+
+		foreach (button; _mouseButtonsReleased) {
+			_handler.callEvent(EI_MOUSE_RELEASED, new MouseButtonEventArgs(button));
+		}
+
+		foreach (motion; _mouseMotionEvents) {
+			_handler.callEvent(EI_MOUSE_MOVED, new MouseMotionEventArgs(motion));
+		}
+
+		foreach (wheel; _mouseWheelEvents) {
+			_handler.callEvent(EI_MOUSE_WHEEL, new MouseWheelEventArgs(wheel));
 		}
 	}
 
@@ -153,4 +205,8 @@ enum {
 	EI_KEY_PRESSED = 0b10000,
 	EI_KEY_HELD = 0b10001,
 	EI_KEY_RELEASED = 0b10010,
+	EI_MOUSE_PRESSED = 0b10011,
+	EI_MOUSE_RELEASED = 0b10100,
+	EI_MOUSE_MOVED = 0b10101,
+	EI_MOUSE_WHEEL = 0b10110
 }
