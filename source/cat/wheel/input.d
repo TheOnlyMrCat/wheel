@@ -6,6 +6,7 @@ import bindbc.sdl;
 
 public import cat.wheel.events;
 import cat.wheel.keysym;
+import cat.wheel.structs;
 
 /**
  * Arguments to keyboard events
@@ -53,13 +54,34 @@ private:
 	int[Keysym] _heldKeys;
 	Keysym[] _releasedKeys;
 
+	MouseButton[] _mouseButtonEvents;
+	MouseMotion[] _mouseMotionEvents;
+	MouseWheel[] _mouseWheelEvents;
+
 	void store(SDL_Event e) nothrow pure @safe {
+		//Keyboard
 		if (e.type == SDL_KEYDOWN) {
 			_pressedKeys ~= Keysym(e.key.keysym.sym, cast(SDL_Keymod) e.key.keysym.mod);
 		} else if (e.type == SDL_KEYUP) {
 			auto keysym = Keysym(e.key.keysym.sym, cast(SDL_Keymod) e.key.keysym.mod);
 			_heldKeys.remove(keysym);
 			_releasedKeys ~= keysym;
+		}
+		//Mouse
+		else if (e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_MOUSEBUTTONUP) {
+			static if (sdlSupport == SDLSupport.sdl200) {
+				_mouseButtonEvents ~= MouseButton(e.button.which, e.button.button, 0, e.button.state, Vector2(e.button.x, e.button.y));
+			} else {
+				_mouseButtonEvents ~= MouseButton(e.button.which, e.button.button, e.button.clicks, e.button.state, Vector2(e.button.x, e.button.y));
+			}
+		} else if (e.type == SDL_MOUSEMOTION) {
+			_mouseMotionEvents ~= MouseMotion(e.motion.which, e.motion.state, Vector2(e.motion.x, e.motion.y), Vector2(e.motion.xrel, e.motion.yrel));
+		} else if (e.type == SDL_MOUSEWHEEL) {
+			static if (sdlSupport >= SDLSupport.sdl204) {
+				_mouseWheelEvents ~= MouseWheel(e.wheel.which, Vector2(e.wheel.x, e.wheel.y), e.wheel.direction);
+			} else {
+				_mouseWheelEvents ~= MouseWheel(e.wheel.which, Vector2(e.wheel.x, e.wheel.y));
+			}
 		}
 	}
 
