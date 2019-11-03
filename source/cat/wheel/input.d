@@ -162,6 +162,11 @@ private:
 
 		_pressedKeys = _pressedKeys.init;
 		_releasedKeys = _releasedKeys.init;
+
+		_mouseButtonsPressed = _mouseButtonsPressed.init;
+		_mouseButtonsReleased = _mouseButtonsReleased.init;
+		_mouseMotionEvents = _mouseMotionEvents.init;
+		_mouseWheelEvents = _mouseWheelEvents.init;
 	}
 }
 
