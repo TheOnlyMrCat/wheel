@@ -98,13 +98,13 @@ class InputHandler {
 	}
 
 	/// Whether the mouse button was pressed
-	bool wasMousePressed(ubyte b) {
-		return canFind!((MouseButton a, ubyte b) => a.button = b)(_mouseButtonsPressed, b);
+	bool wasMousePressed(ubyte u) {
+		return canFind!((MouseButton a, ubyte b) => a.button == b)(_mouseButtonsPressed, u);
 	}
 
 	/// Whether the mouse button was released
-	bool wasMouseReleased(ubyte b) {
-		return canFind!((MouseButton a, ubyte b) => a.button = b)(_mouseButtonsReleased, b);
+	bool wasMouseReleased(ubyte u) {
+		return canFind!((MouseButton a, ubyte b) => a.button == b)(_mouseButtonsReleased, u);
 	}
 
 	/// The keys pressed this frame
