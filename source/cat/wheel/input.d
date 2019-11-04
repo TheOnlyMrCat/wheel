@@ -66,7 +66,7 @@ class InputHandler {
 		_handler.addDelegate((EventArgs) => nextFrame(_handler.time), ED_PRE_PUMP);
 
 		_handler.addDelegate((EventArgs arg) {
-			if (arg.classinfo == typeid(PumpEventArgs)) store(*(cast(SDL_Event*) arg));
+			if (arg.classinfo == typeid(PumpEventArgs)) store((cast(PumpEventArgs) arg).event);
 		}, ED_PUMP);
 
 		_handler.addDelegate((EventArgs) => pumpEvents(), ED_PRE_TICK);

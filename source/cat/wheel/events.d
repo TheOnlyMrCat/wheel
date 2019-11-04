@@ -130,8 +130,10 @@ private:
 	void delegate(EventArgs)[][int] _delegates;
 
 	void runDelegates(uint type, EventArgs args = new EventArgs()) {
-		foreach (d; _delegates[type]) {
-			d(args);
+		if (type in _delegates) {
+			foreach (d; _delegates[type]) {
+				d(args);
+			}
 		}
 	}
 
