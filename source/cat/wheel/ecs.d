@@ -27,6 +27,10 @@ class ECSHandler {
         _handler.addDelegate(del, event);
     }
 
+    /**
+     * Creates a new entity object, managed by this handler
+     * Returns: The created entity
+     */
     Entity createEntity() {
         auto e = new Entity();
         _entities ~= e;
@@ -40,14 +44,22 @@ private:
 }
 
 class Entity {
-    public Component[] components;
+    public Component[TypeInfo] components;
 }
 
 class Component {
 
-    this(ECSHandler handler) {
+    this(ECSHandler handler, Entity e) {
         _handler = handler;
+        entity = e;
     }
+
+    void register(void delegate(EventArgs) del, int event) {
+        _handler.register(del, event);
+    }
+
+protected:
+    Entity entity;
 
 private:
     ECSHandler _handler;
