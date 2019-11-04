@@ -4,8 +4,8 @@ import std.algorithm.searching;
 import core.vararg;
 import bindbc.sdl;
 
-public import cat.wheel.events;
-import cat.wheel.keysym;
+import cat.wheel.events;
+public import cat.wheel.keysym;
 import cat.wheel.structs;
 
 /**
@@ -72,8 +72,74 @@ class InputHandler {
 		_handler.addDelegate((EventArgs) => pumpEvents(), ED_PRE_TICK);
 	}
 
+	/// Gets how long a key has been held for if it hasn't been released
 	int getHeldFor(Keysym key) {
 		return _heldKeys[key];
+	}
+
+	/// Whether the key was pressed, ignoring modifiers
+	bool wasKeyPressed(SDL_Keycode s) {
+		return canFind!((Keysym a, SDL_Keycode b) => a.code == b)(_pressedKeys, s);
+	}
+
+	/// Whether the key is held, ignoring modifiers
+	bool isKeyHeld(SDL_Keycode s) {
+		return canFind!((Keysym a, SDL_Keycode b) => a.code == b)(_heldKeys.keys, s);
+	}
+
+	/// Whether the key is down, ignoring modifiers. Checks isKeyHeld and wasKeyPressed, in that order
+	bool isKeyDown(SDL_Keycode s) {
+		return isKeyHeld(s) || wasKeyPressed(s);
+	}
+
+	/// Whether the key was released, ignoring modifiers
+	bool wasKeyReleased(SDL_Keycode s) {
+		return canFind!((Keysym a, SDL_Keycode b) => a.code == b)(_releasedKeys, s);
+	}
+
+	/// Whether the mouse button was pressed
+	bool wasMousePressed(ubyte b) {
+		return canFind!((MouseButton a, ubyte b) => a.button = b)(_mouseButtonsPressed, b);
+	}
+
+	/// Whether the mouse button was released
+	bool wasMouseReleased(ubyte b) {
+		return canFind!((MouseButton a, ubyte b) => a.button = b)(_mouseButtonsReleased, b);
+	}
+
+	/// The keys pressed this frame
+	@property pressedKeys() {
+		return _pressedKeys.dup;
+	}
+
+	/// The keys that are being held; use getHeldFor to get time held
+	@property heldKeys() {
+		return _heldKeys.keys;
+	}
+
+	/// The keys that were released this frame
+	@property releasedKeys() {
+		return _releasedKeys.dup;
+	}
+
+	/// The mouse buttons that were pressed this frame
+	@property pressedMouseButtons() {
+		return _mouseButtonsPressed.dup;
+	}
+
+	/// The mouse buttons that were released this frame
+	@property releasedMouseButtons() {
+		return _mouseButtonsReleased.dup;
+	}
+
+	/// The mouse movements that happend this frame
+	@property mouseMotionEvents() {
+		return _mouseMotionEvents.dup;
+	}
+
+	/// The mouse scrolling that happened this frame
+	@property mouseWheelEvents() {
+		return _mouseWheelEvents.dup;
 	}
 
 private:
