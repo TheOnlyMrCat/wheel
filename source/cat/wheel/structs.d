@@ -56,10 +56,18 @@ struct Vector2 {
     int x, y;
 }
 
+struct Vector2F {
+    float x, y;
+}
+
 /**
  * A 3-dimensional vector
  */
 struct Vector3 {
     ///
     int x, y, z;
+}
+
+struct Vector3F {
+    float x, y, z;
 }
