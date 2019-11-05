@@ -61,6 +61,5 @@ class Component {
 protected:
     Entity entity;
 
-private:
     ECSHandler _handler;
 }
