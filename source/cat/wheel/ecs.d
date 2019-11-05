@@ -37,6 +37,10 @@ class ECSHandler {
         return e;
     }
 
+    Entity[] entities() {
+        return _entities.dup;
+    }
+
 private:
     Handler _handler;
 
