@@ -119,6 +119,16 @@ private:
 	string _title;
 }
 
+/// Wrapper for an SDL_Surface
+struct Surface {
+	SDL_Surface *sdl;
+}
+
+/// Wrapper for an SDL_Texture
+struct Texture {
+	SDL_Texture *sdl;
+}
+
 class Graphics {
 public:
 
@@ -131,6 +141,15 @@ public:
 	 */
 	this(Window w, SDL_RendererFlags flags = cast(SDL_RendererFlags) 0, int index = -1) {
 		_renderer = SDL_CreateRenderer(w._window, index, flags);
+	}
+
+	/**
+	 * Creates a software SDL renderer
+	 * Params:
+	 *   s = The surface for this renderer to draw to
+	 */
+	this(Surface s) {
+		_renderer = SDL_CreateSoftwareRenderer(s.sdl);
 	}
 
 	~this() {
@@ -191,6 +210,14 @@ public:
 
 		const(SDL_Rect)[] sdlc = sdl;
 		SDL_RenderFillRects(_renderer, sdlc.ptr, sdl.length.to!int).check;
+	}
+
+	void drawTexture(Texture t, Rect src, Rect dest) {
+		SDL_RenderCopy(_renderer, t.sdl, &src.sdl, &dest.sdl);
+	}
+
+	Texture createTextureFrom(Surface s) {
+		return Texture(SDL_CreateTextureFromSurface(_renderer, s.sdl));
 	}
 
 	void render() {
