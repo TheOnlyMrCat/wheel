@@ -77,6 +77,8 @@ class Handler {
 	 * Starts the main loop for this Handler. The loop will run until the stop function has been called
 	 */
 	void handle() {
+		runDelegates(ED_START);
+
 		while (_doContinue) {
 			runDelegates(ED_PRE_PUMP);
 
@@ -100,6 +102,8 @@ class Handler {
 			runDelegates(ED_TICK);
 			runDelegates(ED_POST_TICK);
 		}
+
+		runDelegates(ED_STOP);
 	}
 
 	/**
@@ -145,10 +149,13 @@ private:
 }
 
 enum : uint {
-	ED_TICK = 0b000,
+	/// Run once at the start of handling
+	ED_START = 0b000,
 	ED_PRE_PUMP = 0b001,
 	ED_PUMP = 0b010,
 	ED_POST_PUMP = 0b011,
 	ED_PRE_TICK = 0b100,
-	ED_POST_TICK = 0b101
+	ED_TICK = 0b101,
+	ED_POST_TICK = 0b110,
+	ED_STOP = 0b111
 }
