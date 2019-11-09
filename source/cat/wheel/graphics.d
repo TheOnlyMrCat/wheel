@@ -31,7 +31,7 @@ public:
 		int h = 0,
 		SDL_WindowFlags flags = cast(SDL_WindowFlags) 0)
 	{
-		_window = SDL(SDL_CreateWindow(title.toStringz(), x, y, w, h, flags));
+		_window = SDL_CreateWindow(title.toStringz(), x, y, w, h, flags).objCheck;
 	}
 
 	~this() nothrow {
@@ -122,11 +122,19 @@ private:
 /// Wrapper for an SDL_Surface
 struct Surface {
 	SDL_Surface *sdl;
+
+	~this() {
+		SDL_FreeSurface(sdl);
+	}
 }
 
 /// Wrapper for an SDL_Texture
 struct Texture {
 	SDL_Texture *sdl;
+
+	~this() {
+		SDL_DestroyTexture(sdl);
+	}
 }
 
 class Graphics {
@@ -140,7 +148,7 @@ public:
 	 *   index = The index of the renderer to initialise, leave blank (-1) for the first matching the specified flags
 	 */
 	this(Window w, SDL_RendererFlags flags = cast(SDL_RendererFlags) 0, int index = -1) {
-		_renderer = SDL_CreateRenderer(w._window, index, flags);
+		_renderer = SDL_CreateRenderer(w._window, index, flags).objCheck;
 	}
 
 	/**
@@ -149,7 +157,7 @@ public:
 	 *   s = The surface for this renderer to draw to
 	 */
 	this(Surface s) {
-		_renderer = SDL_CreateSoftwareRenderer(s.sdl);
+		_renderer = SDL_CreateSoftwareRenderer(s.sdl).objCheck;
 	}
 
 	~this() {
@@ -217,7 +225,7 @@ public:
 	}
 
 	Texture createTextureFrom(Surface s) {
-		return Texture(SDL_CreateTextureFromSurface(_renderer, s.sdl));
+		return Texture(SDL_CreateTextureFromSurface(_renderer, s.sdl).objCheck);
 	}
 
 	void render() {
