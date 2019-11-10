@@ -18,7 +18,7 @@ class SDLException : Exception {
  * Returns the object
  */
 package T objCheck(T)(T obj) {
-	if (obj is null) throw new SDLException(SDL_GetError().fromStringz.idup);
+	if (obj == null) throw new SDLException(SDL_GetError().fromStringz.idup);
 	return obj;
 }
 
