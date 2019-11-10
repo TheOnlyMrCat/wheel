@@ -128,15 +128,6 @@ struct Surface {
 	}
 }
 
-/// Wrapper for an SDL_Texture
-struct Texture {
-	SDL_Texture *sdl;
-
-	~this() {
-		if (sdl != null) SDL_DestroyTexture(sdl);
-	}
-}
-
 class Graphics {
 public:
 
@@ -220,12 +211,12 @@ public:
 		SDL_RenderFillRects(_renderer, sdlc.ptr, sdl.length.to!int).check;
 	}
 
-	void drawTexture(Texture t, Rect src, Rect dest) {
-		SDL_RenderCopy(_renderer, t.sdl, &src.sdl, &dest.sdl);
+	void drawTexture(SDL_Texture* t, Rect src, Rect dest) {
+		SDL_RenderCopy(_renderer, t, &src.sdl, &dest.sdl);
 	}
 
-	Texture createTextureFrom(Surface s) {
-		return Texture(SDL_CreateTextureFromSurface(_renderer, s.sdl).objCheck);
+	SDL_Texture* createTextureFrom(Surface s) {
+		return SDL_CreateTextureFromSurface(_renderer, s.sdl).objCheck;
 	}
 
 	void render() {
