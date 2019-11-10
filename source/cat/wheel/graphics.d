@@ -124,7 +124,7 @@ struct Surface {
 	SDL_Surface *sdl;
 
 	~this() {
-		SDL_FreeSurface(sdl);
+		if (sdl != null) SDL_FreeSurface(sdl);
 	}
 }
 
@@ -133,7 +133,7 @@ struct Texture {
 	SDL_Texture *sdl;
 
 	~this() {
-		SDL_DestroyTexture(sdl);
+		if (sdl != null) SDL_DestroyTexture(sdl);
 	}
 }
 
