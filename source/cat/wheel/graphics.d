@@ -249,6 +249,11 @@ public:
 		return SDL_SetRenderDrawColor(_renderer, _drawColour.r, _drawColour.g, _drawColour.b, _drawColour.a);
 	}
 
+	/// The renderer
+	@property renderer() nothrow {
+		return _renderer;
+	}
+
 private:
 	SDL_Renderer* _renderer;
 
